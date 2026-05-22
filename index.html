@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ai วิเคราะห์เค้ารอง - Ultimate Neural Edition</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<!-- ติดตั้ง Brain.js สำหรับ Neural Network -->
+<script src="https://cdn.jsdelivr.net/npm/brain.js"></script>
+
+<style>
+:root{
+ --bg1:#ecfeff;
+ --bg2:#fdf4ff;
+ --bg3:#fefce8;
+
+ --panel:rgba(255,255,255,.85);
+ --glass:rgba(255,255,255,.75);
+ --line:#e5e7eb;
+
+ --blue:#2563eb;
+ --red:#dc2626;
+ --green:#16a34a;
+ --gold:#eab308;
+}
+
+body{
+ scroll-behavior:smooth;
+
+ background:
+ radial-gradient(900px 500px at 10% 0%,rgba(59,130,246,.25),transparent 60%),
+ radial-gradient(900px 500px at 90% 10%,rgba(236,72,153,.22),transparent 55%),
+ radial-gradient(800px 500px at 50% 100%,rgba(250,204,21,.25),transparent 60%),
+ linear-gradient(180deg,var(--bg1),var(--bg2),var(--bg3));
+
+ color:#0f172a;
+ font-family:Inter,Segoe UI,sans-serif;
+}
+
+.table-scroll-panel{
+ overflow-x:auto;
+ background:linear-gradient(180deg,var(--panel),rgba(255,255,255,.65));
+ border-radius:18px;
+ margin-bottom:1rem;
+ border:1px solid var(--line);
+ box-shadow:
+ inset 0 0 0 1px rgba(255,255,255,.6),
+ 0 25px 60px rgba(0,0,0,.12);
+}
+
+table{
+ border-collapse:collapse;
+ width:max-content;
+ min-width:100%;
+ table-layout:fixed;
+}
+
+td{
+ border:1px solid #e5e7eb;
+
+ min-width:28px;
+ width:28px;
+ height:28px;
+
+ text-align:center;
+ background:rgba(255,255,255,.75);
+}
+
+.dot{
+ width:20px;height:20px;
+ border-radius:50%;
+ margin:auto;
+ color:white;
+ font-size:.65rem;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ box-shadow:0 0 12px rgba(0,0,0,.25);
+}
+
+.bg-player{background:linear-gradient(135deg,#2563eb,#60a5fa)}
+.bg-banker{background:linear-gradient(135deg,#dc2626,#f87171)}
+.bg-tie{background:linear-gradient(135deg,#16a34a,#4ade80)}
+
+.hollow-dot{
+ width:14px;height:14px;
+ border-radius:50%;
+ border:2px solid;
+ margin:auto;
+}
+.solid-dot{
+ width:12px;height:12px;
+ border-radius:50%;
+ margin:auto;
+}
+.slash-dot{
+ width:12px;height:2px;
+ transform:rotate(-45deg);
+ margin:auto;
+}
+
+.text-win{color:#16a34a}
+.text-loss{color:#dc2626}
+
+@keyframes hyper-blink{
+ 0%,100%{opacity:1;transform:scale(1.1)}
+ 50%{opacity:.35;transform:scale(.9)}
+}
+
+@keyframes finalFlash{
+  0%,100%{
+    opacity:1;
+    transform:scale(1);
+    filter:brightness(1);
+  }
+  50%{
+    opacity:.4;
+    transform:scale(1.15);
+    filter:brightness(2);
+  }
+}
+
+.final-player{
+  color:#60a5fa !important; /* ฟ้าน้ำเงิน premium */
+  font-weight:900;
+
+  animation:finalFlash 2.8s ease-in-out infinite;
+
+  text-shadow:
+    0 0 10px #60a5fa,
+    0 0 20px #2563eb,
+    0 0 35px #1d4ed8;
+
+  letter-spacing:1px;
+}
+.final-banker{
+  color:#dc2626 !important; /* แดง */
+  font-weight:900;
+  animation:finalFlash 1.7s infinite;
+  text-shadow:
+    0 0 12px #ff4d4d,
+    0 0 24px #ff0000;
+}
+
+.animate-hyper{
+ animation:hyper-blink .25s infinite;
+ text-shadow:0 0 16px currentColor;
+}
+.dna-blink{
+ animation:hyper-blink .35s infinite;
+ transform:scale(1.7);
+ display:inline-block;
+}
+
+/* ===== LOGIN ===== */
+#loginScreen{
+ position:fixed;
+ inset:0;
+ background:
+ radial-gradient(800px 400px at 20% 0%,rgba(59,130,246,.25),transparent 60%),
+ radial-gradient(800px 400px at 80% 10%,rgba(236,72,153,.22),transparent 55%),
+ linear-gradient(180deg,var(--bg1),var(--bg2),var(--bg3));
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ z-index:9999;
+}
+
+
+/* ===== PREMIUM GRADIENT ANIMATION ===== */
+@keyframes gradientMove{
+ 0%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+ 100%{background-position:0% 50%}
+}
+
+.animate-gradient-x{
+ background-size:300% 300%;
+ animation:gradientMove 6s ease infinite;
+}
+
+@keyframes sparkleGlow{
+ 0%,100%{box-shadow:0 0 25px rgba(255,215,0,.4)}
+ 50%{box-shadow:0 0 60px rgba(255,215,0,.8)}
+}
+
+.premium-sparkle{
+ animation:sparkleGlow 2.5s ease-in-out infinite;
+}
+
+/* ===== ULTRA ASSIST LUXURY EFFECT ===== */
+
+/* ลอยเบา ๆ */
+@keyframes floatSoft{
+ 0%,100%{transform:translateY(0px)}
+ 50%{transform:translateY(-6px)}
+}
+
+/* แสงวิ่งผ่าน */
+@keyframes shineSweep{
+ 0%{transform:translateX(-120%)}
+ 100%{transform:translateX(120%)}
+}
+
+/* scale เปิดกล่อง */
+@keyframes popIn{
+ 0%{opacity:0;transform:scale(.9)}
+ 100%{opacity:1;transform:scale(1)}
+}
+
+/* depth glass */
+.ultra-glass{
+ backdrop-filter:blur(18px);
+ box-shadow:
+  inset 0 0 40px rgba(255,255,255,.35),
+  0 25px 80px rgba(0,0,0,.25);
+}
+
+/* แสง sweep layer */
+.ultra-shine{
+ position:absolute;
+ top:0;
+ left:0;
+ width:50%;
+ height:100%;
+ background:linear-gradient(
+ 120deg,
+ transparent 0%,
+ rgba(255,255,255,.6) 50%,
+ transparent 100%
+ );
+ animation:shineSweep 3.5s linear infinite;
+}
+
+/* ใช้กับกล่อง */
+.ultra-animate{
+ animation:
+  floatSoft 4s ease-in-out infinite,
+  popIn .4s ease-out;
+ position:relative;
+ overflow:hidden;
+}
+
+/* NN Training Progress Bar */
+.nn-progress-container {
+  width: 100%;
+  height: 4px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.nn-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transition: width 0.3s ease;
+}
+
+.assist-box{
+ height:34px;
+ border-radius:10px;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-size:10px;
+ font-weight:900;
+ color:white;
+ position:relative;
+ overflow:hidden;
+
+ box-shadow:
+ 0 8px 20px rgba(0,0,0,.12);
+
+ animation:popIn .25s ease;
+}
+
+.assist-win{
+ background:
+ linear-gradient(135deg,#10b981,#34d399);
+}
+
+.assist-loss{
+ background:
+ linear-gradient(135deg,#ef4444,#f87171);
+}
+
+.assist-box::after{
+ content:'';
+ position:absolute;
+ inset:0;
+ background:
+ linear-gradient(
+ 120deg,
+ transparent,
+ rgba(255,255,255,.35),
+ transparent
+ );
+ transform:translateX(-100%);
+ animation:shineSweep 2.5s linear infinite;
+}
+
+.table-panel-no-scroll{
+ background:linear-gradient(180deg,var(--panel),rgba(255,255,255,.65));
+ border-radius:18px;
+ margin-bottom:1rem;
+ border:1px solid var(--line);
+ box-shadow:
+ inset 0 0 0 1px rgba(255,255,255,.6),
+ 0 25px 60px rgba(0,0,0,.12);
+
+ overflow-x:auto;
+ overflow-y:hidden;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen">
+
+<div id="loginBox"
+ class="bg-white/80 backdrop-blur p-6 rounded-2xl w-80 border border-slate-300 shadow-2xl text-center">
+  <div class="text-xl font-black text-blue-600 mb-2">Ai วิเคราะห์เค้ารอง</div>
+  <div class="text-xs text-slate-500 mb-4">Premium Login</div>
+
+  <input id="user" placeholder="User"
+   class="w-full mb-2 p-2 rounded-lg border border-slate-300 text-center">
+
+  <input id="pass" type="password" placeholder="Password"
+   class="w-full mb-3 p-2 rounded-lg border border-slate-300 text-center">
+
+   <!-- SHOW PASSWORD -->
+<label class="flex items-center gap-2 text-xs text-slate-600 mb-3 cursor-pointer select-none">
+  <input type="checkbox" onchange="togglePassword(this)">
+  แสดงรหัสผ่าน
+</label>
+
+
+  <button onclick="login()"
+   class="w-full bg-blue-600 text-white py-2 rounded-xl font-bold shadow-lg">
+   LOGIN
+  </button>
+
+<div id="loginErr" class="text-red-500 text-xs mt-2">
+   User หรือ Password ไม่ถูกต้อง
+</div>
+
+</div>
+</div>
+
+<!-- ===== PROGRAM ===== -->
+<div id="app" class="hidden p-4 pb-48">
+<div class="max-w-4xl mx-auto">
+
+<!-- ===== TOP BAR (เพิ่มวันหมดอายุ) ===== -->
+<div class="mb-3 p-3 rounded-xl border border-slate-300 bg-white/80 backdrop-blur flex justify-between items-center">
+ <div class="font-black text-blue-600 text-lg">Ai วิเคราะห์เค้ารอง</div>
+ <div class="text-xs font-bold text-red-600">
+  วันหมดอายุ: 25 พฤษภาคม พ.ศ. 2569
+ </div>
+</div>
+
+<h1 class="text-2xl font-black text-blue-600 mb-3 tracking-wide">
+ Ai วิเคราะห์เค้ารอง <span class="text-xs font-normal text-slate-400">Neural Network Active</span>
+</h1>
+
+<div class="mb-4 p-3 rounded-xl border border-slate-300 grid grid-cols-4 text-center text-sm font-bold bg-white/70 backdrop-blur">
+<div class="text-blue-600">P: <span id="cntP">0</span></div>
+<div class="text-red-600">B: <span id="cntB">0</span></div>
+<div class="text-green-600">T: <span id="cntT">0</span></div>
+<div class="text-slate-700">TOTAL: <span id="cntAll">0</span></div>
+</div>
+
+<div class="mb-5 p-5 rounded-2xl border-2 border-blue-400/60 text-center bg-white/75 backdrop-blur shadow-[0_0_40px_rgba(59,130,246,.25)]">
+<div class="text-xs text-slate-500 mb-1">AI NEXT RECOMMENDATION</div>
+<div id="aiStatus" class="text-xs mb-1">WAITING DATA...</div>
+
+<div id="aiResult" class="text-5xl font-black text-blue-600">--</div>
+
+<div id="aiReason"
+ class="text-[11px] mt-3 text-slate-700 leading-relaxed font-semibold">
+</div>
+
+
+<!-- NN Training Indicator -->
+<div id="nnInfo" class="text-[10px] text-slate-400 mt-2 hidden">
+  Neural Network Training: <span id="nnProgressText">0%</span>
+  <div class="nn-progress-container">
+    <div id="nnProgressBar" class="nn-progress-bar"></div>
+  </div>
+</div>
+</div>
+
+<!-- ===== ULTIMATE ASSIST PREMIUM ===== -->
+<div id="ultraAssist"
+ class="mt-6 p-[2px] rounded-3xl hidden ultra-animate
+ bg-gradient-to-r from-yellow-400 via-pink-400 to-blue-400
+ animate-gradient-x premium-sparkle
+ shadow-[0_0_80px_rgba(234,179,8,.65)]">
+
+ <div class="rounded-3xl bg-white/85 ultra-glass p-6 relative">
+ <div class="ultra-shine"></div>
+
+  <div class="flex justify-between items-center mb-3">
+   <div class="text-xs font-bold tracking-widest text-slate-500">
+      ผู้ช่วยวิเคราะห์หลายชั้น (AI ขั้นสูง + Neural Network)
+   </div>
+   <div class="text-[10px] font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-600">
+    PREMIUM MODE
+   </div>
+  </div>
+
+  <div id="assistMain"
+   class="text-5xl font-black text-center mb-4 transition-all duration-300">
+   --
+  </div>
+
+<div id="assistDetail"
+ class="grid grid-cols-2 gap-3 text-xs font-semibold text-slate-700">
+</div>
+
+<!-- ASSIST HISTORY -->
+<div class="mt-5">
+
+  <div class="flex justify-between items-center mb-2">
+    <div class="text-xs font-bold text-slate-500">
+      ASSIST RESULT HISTORY
+    </div>
+
+    <div id="assistWinrate"
+      class="text-xs font-black text-emerald-600">
+      WINRATE 0%
+    </div>
+  </div>
+
+  <div id="assistHistoryGrid"
+   class="grid grid-cols-5 md:grid-cols-10 xl:grid-cols-15 gap-2">
+  </div>
+
+</div>
+
+ </div>
+</div>
+
+
+<div class="table-panel-no-scroll">
+  <div class="px-3 py-2 text-xs">BEAD PLATE</div>
+  <table id="bead"></table>
+</div>
+
+
+<div class="table-scroll-panel">
+  <div class="px-3 py-2 text-xs flex justify-between">
+    <span class="text-blue-600">DNA STATISTICS</span>
+    <span id="dnaPercent" class="font-bold text-slate-700">
+      WIN 0% | LOSS 0%
+    </span>
+  </div>
+
+  <table id="dna"></table>
+</div>
+
+
+
+
+<div class="table-scroll-panel"><div class="px-3 py-2 text-xs">BIG ROAD</div><table id="big"></table></div>
+
+<div class="grid grid-cols-3 gap-3">
+ <div class="table-scroll-panel"><div class="px-2 py-1 text-xs">BIG EYE BOY</div><table id="eye"></table></div>
+ <div class="table-scroll-panel"><div class="px-2 py-1 text-xs">SMALL ROAD</div><table id="small"></table></div>
+ <div class="table-scroll-panel"><div class="px-2 py-1 text-xs">COCKROACH</div><table id="cock"></table></div>
+</div>
+
+</div>
+
+<div class="fixed bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur border-t border-slate-300">
+<div class="max-w-2xl mx-auto flex gap-2">
+<button onclick="add('PLAYER')" class="flex-1 bg-blue-600 text-white p-3 rounded-xl font-bold">PLAYER</button>
+<button onclick="add('TIE')" class="bg-green-600 text-white p-3 rounded-xl w-16">TIE</button>
+<button onclick="add('BANKER')" class="flex-1 bg-red-600 text-white p-3 rounded-xl font-bold">BANKER</button>
+<button onclick="undo()" class="bg-slate-500 text-white p-3 rounded-xl w-16"><i class="fa fa-undo"></i></button>
+<button onclick="clearAll()" class="bg-yellow-500 text-white p-3 rounded-xl w-16"><i class="fa fa-trash"></i></button>
+</div>
+</div>
+</div>
+
+<script>
+/* ===== EXPIRY CHECK ===== */
+const EXP_DATE = new Date(2026,4,25,23,59,59); // 25 May 2026
+(function(){
+ const now=new Date();
+ if(now>EXP_DATE){
+  document.body.innerHTML=`
+  <div style="display:flex;align-items:center;justify-content:center;height:100vh;
+  background:#020617;color:white;font-family:Segoe UI;text-align:center">
+   <div>
+    <div style="font-size:26px;font-weight:800;color:#f87171">
+     โปรแกรมหมดอายุ
+    </div>
+    <div style="margin-top:8px;font-size:14px;color:#cbd5f5">
+     กรุณาติดต่อผู้ดูแลระบบ
+    </div>
+   </div>
+  </div>`;
+ }
+})();
+
+function togglePassword(el){
+  const passInput = document.getElementById("pass");
+  passInput.type = el.checked ? "text" : "password";
+}
+
+/* ===== LOGIN (API VERSION) ===== */
+async function login(){
+  const userInput = document.getElementById("user");
+  const passInput = document.getElementById("pass");
+  const loginBoxEl = document.getElementById("loginBox");
+  const appEl = document.getElementById("app");
+  const loginErrEl = document.getElementById("loginErr");
+
+  loginErrEl.innerHTML = '<span class="text-blue-600">กำลังตรวจสอบ License...</span>';
+
+  try{
+    const res = await fetch(
+      "https://morning-block-55bb.havanalanna.workers.dev/?user="
+      + encodeURIComponent(userInput.value)
+      + "&pass=" + encodeURIComponent(passInput.value)
+    );
+    const data = await res.json();
+    if(data.status === "ok"){
+      loginErrEl.innerHTML = `<span class="text-green-600 font-bold">✔ License Verified</span>`;
+      setTimeout(()=>{
+        document.getElementById("loginScreen").style.display="none";
+        appEl.classList.remove("hidden");
+        render();
+      },700);
+
+      const user = userInput.value;
+      const pass = passInput.value;
+      setInterval(async ()=>{
+        try{
+          const r = await fetch(
+            "https://morning-block-55bb.havanalanna.workers.dev/?user="
+            + encodeURIComponent(user)
+            + "&pass=" + encodeURIComponent(pass)
+          );
+          const j = await r.json();
+          if(j.status !== "ok"){
+            alert("⛔ License ถูกปิดใช้งาน");
+            location.reload();
+          }
+        }catch(e){
+          console.log("License Check Error");
+        }
+      },30000);
+    }else{
+      loginErrEl.innerHTML = `<span class="text-red-600 font-bold">✖ User หรือ Password ไม่ถูกต้อง</span>`;
+    }
+  }catch(e){
+    loginErrEl.innerHTML = `<span class="text-red-600 font-bold">✖ ไม่สามารถเชื่อมต่อ License Server</span>`;
+  }
+}
+
+/* ===== NEURAL NETWORK CORE (BRAIN.JS) ===== */
+let net
+
+try{
+
+  if(brain.NeuralNetworkGPU){
+
+    net = new brain.NeuralNetworkGPU({
+      hiddenLayers:[6,4],
+      activation:'sigmoid'
+    })
+
+  }else{
+
+    throw new Error()
+
+  }
+
+}catch(e){
+
+  net = new brain.NeuralNetwork({
+    hiddenLayers:[6,4],
+    activation:'sigmoid'
+  })
+
+}
+let nnPrediction = null;
+let nnConfidence = 0;
+let isTraining = false;
+
+let accuracyTracker = {
+  pattern: { correct: 0, total: 0 },
+  neural: { correct: 0, total: 0 }
+};
+
+function prepareNNData(historyData) {
+  const valid = historyData.filter(x => x !== 'TIE');
+  if (valid.length < 8) return null;
+
+  const trainingData = [];
+  const lookback = 10;
+
+  for (let i = lookback; i < valid.length; i++) {
+    const input = {};
+    for (let j = 0; j < lookback; j++) {
+      input[`h-${lookback-j}`] = valid[i - lookback + j] === 'PLAYER' ? 0 : 1;
+    }
+    
+    const tempHistory = valid.slice(0, i);
+    const big = getBigRoadFrom(tempHistory);
+    const eye = calcDerived(big, 1);
+    const small = calcDerived(big, 2);
+    const cock = calcDerived(big, 3);
+    
+    input['eye'] = eye.length ? (eye.at(-1) === 'RED' ? 1 : 0) : 0.5;
+    input['small'] = small.length ? (small.at(-1) === 'RED' ? 1 : 0) : 0.5;
+    input['cock'] = cock.length ? (cock.at(-1) === 'RED' ? 1 : 0) : 0.5;
+    
+    const output = { [valid[i] === 'PLAYER' ? 'p' : 'b']: 1 };
+    trainingData.push({ input, output });
+  }
+  return trainingData;
+}
+
+async function trainNeuralNetwork() {
+  if(isTraining) return
+  const data = prepareNNData(history);
+  if (!data || data.length < 5) return;
+
+  isTraining = true;
+  const nnInfo = document.getElementById('nnInfo');
+  const nnBar = document.getElementById('nnProgressBar');
+  const nnText = document.getElementById('nnProgressText');
+  
+  nnInfo.classList.remove('hidden');
+  
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 2;
+    if (progress <= 98) {
+      nnBar.style.width = progress + '%';
+      nnText.innerText = progress + '%';
+    }
+  }, 30);
+
+  try {
+  if(net.trainAsync){
+
+  await net.trainAsync(data,{
+    iterations:2000,
+    errorThresh:0.005,
+    log:false
+  })
+
+}else{
+
+  net.train(data,{
+    iterations:2000,
+    errorThresh:0.005,
+    log:false
+  })
+
+}
+    
+    const valid = history.filter(x => x !== 'TIE');
+    const input = {};
+const lookback = 10
+
+const last10 =
+ valid.slice(-lookback)
+
+for(let i=0;i<lookback;i++){
+
+  const v = last10[i]
+
+  input[`h-${lookback-i}`] =
+
+    v === 'PLAYER'
+    ? 0
+
+    : v === 'BANKER'
+      ? 1
+      : 0.5
+}
+    const big = getBigRoad();
+    const eye = calcDerived(big, 1);
+    const small = calcDerived(big, 2);
+    const cock = calcDerived(big, 3);
+    
+    input['eye'] = eye.length ? (eye.at(-1) === 'RED' ? 1 : 0) : 0.5;
+    input['small'] = small.length ? (small.at(-1) === 'RED' ? 1 : 0) : 0.5;
+    input['cock'] = cock.length ? (cock.at(-1) === 'RED' ? 1 : 0) : 0.5;
+
+let result = null
+
+try{
+
+  result = net.run(input)
+
+}catch(e){
+
+  console.log('NN RUN ERROR')
+
+  nnPrediction = null
+  nnConfidence = 0
+
+  return
+}
+
+const pVal =
+ Number(result?.p ?? 0)
+
+const bVal =
+ Number(result?.b ?? 0)
+
+/* FIX NaN */
+
+if(
+   isNaN(pVal) ||
+   isNaN(bVal)
+){
+
+   nnPrediction = null
+   nnConfidence = 0
+
+   return
+}
+
+/* FIX ZERO RESULT */
+
+if(
+   pVal === 0 &&
+   bVal === 0
+){
+
+   nnPrediction =
+      history
+      .filter(x=>x!=='TIE')
+      .at(-1)
+      || 'PLAYER'
+
+   nnConfidence = 0.51
+
+}else{
+
+   /* NORMAL RESULT */
+
+   nnPrediction =
+    pVal >= bVal
+    ? 'PLAYER'
+    : 'BANKER'
+
+   nnConfidence =
+    Number(
+      Math.max(pVal,bVal)
+    ) || 0
+}
+
+/* BOOST / REDUCE */
+
+if(shoeState.streak >= 5){
+
+   nnConfidence += 0.08
+}
+
+if(shoeState.chop > shoeState.trend){
+
+   nnConfidence -= 0.12
+}
+
+/* LIMIT */
+
+nnConfidence = Math.max(
+  0,
+  Math.min(1, nnConfidence)
+)
+
+/* RENDER */
+
+render()
+
+/* FORCE UI */
+
+const nnValueEl =
+ document.getElementById(
+   "nnConfidenceValue"
+ )
+
+if(nnValueEl){
+
+   nnValueEl.innerText =
+     ((nnConfidence || 0)*100).toFixed(1)
+     + '%'
+}
+
+  } catch (e) {
+    console.error("NN Training Error:", e);
+  } finally {
+    clearInterval(interval);
+    nnBar.style.width = '100%';
+    nnText.innerText = '100%';
+    setTimeout(() => {
+      nnInfo.classList.add('hidden');
+      isTraining = false;
+    }, 500);
+  }
+}
+
+/* ===== LOGIC เดิม 100% ===== */
+const ROWS=6,COLS=300,DNA_ROWS=4// เพิ่ม COLS เป็น 100 เพื่อรองรับข้อมูลมากขึ้น
+let history = [], dna = [];
+let patternMemory = {}
+
+let shoeState = {
+  trend: 0,
+  chop: 0,
+  chaos: 0,
+  streak: 0
+}
+
+let lastPrediction = null
+let stableCounter = 0
+let dominantEngine = '-'
+
+let metaStats = {
+  followWin:0,
+  followLose:0,
+  reverseWin:0,
+  reverseLose:0
+}
+
+let globalWinPct = 0
+let globalLossPct = 0
+
+let assistHistory = []
+
+let betHistory = []
+
+let lastBet = null
+
+let lastAssistBet = null
+
+// แก้ไขฟังก์ชันสร้างตารางให้รองรับคอลัมน์ที่เพิ่มขึ้น
+function make(id,r,c){
+  const t=document.getElementById(id);
+  t.innerHTML = ''; // ล้างตารางก่อนสร้างใหม่
+  for(let i=0;i<r;i++){
+    let tr=document.createElement('tr');
+    for(let j=0;j<c;j++) tr.appendChild(document.createElement('td'));
+    t.appendChild(tr);
+  }
+}
+make('bead',ROWS,300);make('dna',DNA_ROWS,COLS);make('big',ROWS,COLS);make('eye',ROWS,COLS);make('small',ROWS,COLS);make('cock',ROWS,COLS)
+
+function clearTable(id){
+
+  const table = document.getElementById(id)
+
+  if(!table) return
+
+  const cells = table.querySelectorAll('td')
+
+  for(let i=0;i<cells.length;i++){
+
+     if(cells[i].innerHTML !== ''){
+
+        cells[i].innerHTML = ''
+
+     }
+
+  }
+}
+
+function add(x){
+
+  const valid =
+    history.filter(v=>v!=='TIE')
+
+  /* =========================
+     CHECK RESULT จากโพยแทงจริง
+  ========================== */
+
+if(
+   x !== 'TIE' &&
+   lastAssistBet
+){
+    const lastRealBet =
+  lastAssistBet
+
+    if(lastRealBet){
+
+      const isWin =
+        lastRealBet === x
+
+      /* ASSIST HISTORY */
+
+      assistHistory.push({
+        result:isWin ? 'WIN' : 'LOSS',
+        predict:lastRealBet,
+        actual:x
+      })
+
+      /* DNA */
+
+      dna.push(
+        isWin ? 'WIN' : 'LOSS'
+      )
+
+      /* LIMIT */
+
+      if(assistHistory.length > 500){
+        assistHistory.shift()
+      }
+
+      if(dna.length > 20){
+        dna.shift()
+      }
+
+      /* ACCURACY */
+
+      const currentMode =
+        document.getElementById(
+          'aiStatus'
+        ).innerText
+
+      if(currentMode.includes('Neural')){
+
+        accuracyTracker.neural.total++
+
+        if(isWin){
+          accuracyTracker.neural.correct++
+        }
+
+      }else{
+
+        accuracyTracker.pattern.total++
+
+        if(isWin){
+          accuracyTracker.pattern.correct++
+        }
+      }
+    }
+  }
+
+  /* =========================
+     ADD RESULT
+  ========================== */
+
+  history.push(x)
+
+  learnPattern()
+
+  render()
+
+  /* =========================
+     เก็บ "ตัวแทงจริง"
+     หลัง render/updateAI เสร็จ
+  ========================== */
+
+
+
+  /* TRAIN BG */
+
+  setTimeout(()=>{
+
+    trainNeuralNetwork()
+
+  },0)
+}
+function undo(){
+
+  if(!history.length) return
+
+  const last =
+    history.pop()
+
+  /* ลบผลตรวจย้อนหลัง */
+
+  if(last !== 'TIE'){
+
+    if(dna.length){
+      dna.pop()
+    }
+
+    if(assistHistory.length){
+      assistHistory.pop()
+    }
+
+    if(betHistory.length){
+      betHistory.pop()
+    }
+  }
+
+ lastAssistBet = null
+
+render()
+}
+
+
+function clearAll(){
+
+  history = []
+  dna = []
+
+  assistHistory = []
+  betHistory = []
+
+  patternMemory = {}
+
+  nnPrediction = null
+  nnConfidence = 0
+
+  /* RESET BET */
+  lastBet = null
+  lastAssistBet = null
+
+  /* RESET NN */
+  net = new brain.NeuralNetwork({
+    hiddenLayers:[6,4],
+    activation:'sigmoid'
+  })
+
+  /* RESET ACCURACY */
+  accuracyTracker = {
+    pattern:{
+      correct:0,
+      total:0
+    },
+    neural:{
+      correct:0,
+      total:0
+    }
+  }
+
+  /* RESET SHOE STATE */
+  shoeState = {
+    trend:0,
+    chop:0,
+    chaos:0,
+    streak:0
+  }
+
+  /* RESET META */
+  metaStats = {
+    followWin:0,
+    followLose:0,
+    reverseWin:0,
+    reverseLose:0
+  }
+
+  /* RESET AI STATE */
+  stableCounter = 0
+  lastPrediction = null
+  dominantEngine = '-'
+
+  resetAI()
+  resetUltraAssist()
+
+  render()
+}
+
+function resetUltraAssist(){
+  const box = document.getElementById("ultraAssist")
+  const main = document.getElementById("assistMain")
+  const detail = document.getElementById("assistDetail")
+  if(!box || !main || !detail) return
+  box.classList.add("hidden")
+  main.innerText = "--"
+  detail.innerHTML = ""
+}
+
+function resetAI(){
+
+ const aiResult =
+ document.getElementById('aiResult')
+
+ const aiStatus =
+ document.getElementById('aiStatus')
+
+ if(!aiResult || !aiStatus) return
+
+ aiResult.innerText='--'
+
+ aiStatus.innerText='WAITING DATA...'
+
+ aiResult.classList.remove('animate-hyper')
+
+}
+
+function render(){
+  clearTable('bead')
+  clearTable('dna')
+  clearTable('big')
+  clearTable('eye')
+  clearTable('small')
+  clearTable('cock')
+  renderBead()
+  renderDNA()
+  const big=getBigRoad()
+  renderBig(big)
+  const eye=calcDerived(big,1)
+  const small=calcDerived(big,2)
+  const cock=calcDerived(big,3)
+  renderDerived('eye',eye,'hollow')
+  renderDerived('small',small,'solid')
+  renderDerived('cock',cock,'slash')
+  analyzeShoeState()
+  updateAI(eye,small,cock)
+  updateCounter()
+
+renderAssistHistory()
+}
+
+function analyzeShoeState(){
+
+  const valid = history.filter(x=>x!=='TIE')
+
+  if(valid.length < 8) return
+
+  let trend = 0
+  let chop = 0
+  let streak = 1
+  let maxStreak = 1
+
+  for(let i=1;i<valid.length;i++){
+
+    if(valid[i] === valid[i-1]){
+
+      trend++
+      streak++
+
+      if(streak > maxStreak){
+        maxStreak = streak
+      }
+
+    }else{
+
+      chop++
+      streak = 1
+
+    }
+  }
+
+  shoeState.trend = trend
+  shoeState.chop = chop
+  shoeState.streak = maxStreak
+  shoeState.chaos = Math.abs(trend - chop)
+}
+
+
+function updateCounter(){
+  let p=0,b=0,t=0
+  history.forEach(x=>{
+    if(x==='PLAYER') p++
+    else if(x==='BANKER') b++
+    else if(x==='TIE') t++
+  })
+document.getElementById('cntP').innerText = p
+document.getElementById('cntB').innerText = b
+document.getElementById('cntT').innerText = t
+document.getElementById('cntAll').innerText = history.length
+}
+
+// ปรับปรุงฟังก์ชัน renderBead ให้แสดงผลได้ครบถ้วนและลื่นไหล
+function renderBead(){
+
+  const table =
+   document.getElementById('bead');
+
+  const panel =
+   table.parentElement;
+
+  // เช็คก่อน render ว่าผู้ใช้อยู่ขวาสุดไหม
+  const nearRight =
+    panel.scrollLeft + panel.clientWidth >=
+    panel.scrollWidth - 80;
+
+  history.forEach((r,i)=>{
+
+    let row = i % ROWS;
+
+    let col =
+     Math.floor(i / ROWS);
+
+    let cell =
+     table.rows[row]?.cells[col];
+
+    if(cell){
+
+      let cls =
+       r === 'PLAYER'
+       ? 'bg-player'
+       : r === 'BANKER'
+       ? 'bg-banker'
+       : 'bg-tie';
+
+      cell.innerHTML =
+       `<div class="dot ${cls}">${r[0]}</div>`;
+    }
+
+  });
+
+  // auto scroll เฉพาะตอนอยู่ขวาสุด
+  if(nearRight){
+
+    requestAnimationFrame(()=>{
+
+      panel.scrollLeft =
+       panel.scrollWidth;
+
+    });
+
+  }
+}
+function renderDNA(){
+ dna.forEach((r,i)=>{
+  let row=i%DNA_ROWS
+  let col=Math.floor(i/DNA_ROWS)
+  let cell=document.getElementById('dna').rows[row]?.cells[col]
+  if(cell){
+   cell.innerHTML=`<span class="${r==='WIN'?'text-win':'text-loss'}">${r==='WIN'?'✔':'✖'}</span>`
+  }
+ })
+ updateDNAPercent()
+}
+
+function renderAssistHistory(){
+
+ const grid =
+ document.getElementById(
+   'assistHistoryGrid'
+ )
+
+ const rate =
+ document.getElementById(
+   'assistWinrate'
+ )
+
+ if(!grid || !rate) return
+
+ grid.innerHTML = ''
+
+ let win = 0
+
+ assistHistory.forEach((x)=>{
+
+   if(x.result === 'WIN'){
+      win++
+   }
+
+   const div =
+    document.createElement('div')
+
+   div.className =
+    `assist-box ${
+      x.result === 'WIN'
+      ? 'assist-win'
+      : 'assist-loss'
+    }`
+
+   div.innerHTML =
+    x.result === 'WIN'
+    ? '✔'
+    : '✖'
+
+   grid.appendChild(div)
+
+ })
+
+ const total = assistHistory.length
+
+ const pct =
+  total
+   ? ((win/total)*100).toFixed(1)
+   : 0
+
+ rate.innerText =
+   `WINRATE ${pct}%`
+}
+
+function updateDNAPercent(){
+ const win = dna.filter(x => x === 'WIN').length
+ const loss = dna.filter(x => x === 'LOSS').length
+ const total = win + loss
+ const winPct = total ? Math.round((win/total)*100) : 0
+ const lossPct = total ? Math.round((loss/total)*100) : 0
+ globalWinPct = winPct
+ globalLossPct = lossPct
+ const percentEl = document.getElementById("dnaPercent")
+ if(percentEl){
+   percentEl.innerHTML = `
+     <span id="winSide">WIN ${winPct}%</span> |
+     <span id="lossSide">LOSS ${lossPct}%</span>
+   `
+ }
+ const winEl = document.getElementById("winSide")
+ const lossEl = document.getElementById("lossSide")
+ if(!winEl || !lossEl) return
+ winEl.classList.remove("animate-hyper")
+ lossEl.classList.remove("animate-hyper")
+ if(winPct >= 51) winEl.classList.add("animate-hyper")
+ if(lossPct >= 51) lossEl.classList.add("animate-hyper")
+}
+
+function getBigRoad(){ return getBigRoadFrom(history); }
+function getBigRoadFrom(hist){let cols=[],col=[],last=null;hist.forEach(r=>{if(r==='TIE')return;if(last&&r!==last){cols.push(col);col=[]}col.push(r);last=r});if(col.length)cols.push(col);return cols}
+
+function renderBig(data){
+  data.forEach((col,c)=>{
+    col.forEach((r,i)=>{
+      let row = Math.min(i,ROWS-1)
+      let shift = i>=ROWS ? i-ROWS+1 : 0
+      let table = document.getElementById('big')
+      let cell = table.rows[row]?.cells[c+shift]
+      if(cell){
+        cell.innerHTML = `<div class="hollow-dot" style="border-color:${r==='PLAYER'?'#2563eb':'#dc2626'}"></div>`
+      }
+    })
+  })
+}
+
+function calcDerived(big,gap){let out=[];for(let c=gap;c<big.length;c++){for(let r=0;r<big[c].length;r++){let red=r===0?big[c-1].length===big[c-gap-1]?.length:big[c-gap][r]!==undefined;out.push(red?'RED':'BLUE')}}return out}
+function renderDerived(id,data,type){let col=0,row=0,last=null;data.forEach(c=>{if(last&&c!==last){col++;row=0}let cell=document.getElementById(id).rows[Math.min(row,ROWS-1)]?.cells[col];if(cell){let color=c==='RED'?'#dc2626':'#2563eb';if(type==='hollow')cell.innerHTML=`<div class="hollow-dot" style="border-color:${color}"></div>`;if(type==='solid')cell.innerHTML=`<div class="solid-dot" style="background:${color}"></div>`;if(type==='slash')cell.innerHTML=`<div class="slash-dot" style="background:${color}"></div>`}last=c;row++})}
+function learnPattern(){
+
+  const valid = history.filter(x=>x!=='TIE')
+
+  if(valid.length < 10) return
+
+  /* =========================
+     LAYER 1 : SHORT MEMORY
+     จำ 5 ตา
+  ========================== */
+
+  const shortKey =
+    valid.slice(-6,-1).join('')
+
+  /* =========================
+     LAYER 2 : DEEP MEMORY
+     จำ 10 ตา
+  ========================== */
+
+  const deepKey =
+    valid.slice(-11,-1).join('')
+
+  const next = valid.at(-1)
+
+  /* ===== SHORT ===== */
+
+  if(!patternMemory[shortKey]){
+    patternMemory[shortKey] = {
+      PLAYER:0,
+      BANKER:0
+    }
+  }
+
+  patternMemory[shortKey][next]++
+
+  /* ===== DEEP ===== */
+
+  if(!patternMemory[deepKey]){
+    patternMemory[deepKey] = {
+      PLAYER:0,
+      BANKER:0
+    }
+  }
+
+  patternMemory[deepKey][next]++
+}
+
+function updateUltraAssist(valid, score){
+ const box = document.getElementById("ultraAssist")
+ const main = document.getElementById("assistMain")
+ const detail = document.getElementById("assistDetail")
+ if(!box || !main || !detail) return
+ box.classList.add("hidden")
+ main.innerText = "--"
+ detail.innerHTML = ""
+ const win = globalWinPct
+ const loss = globalLossPct
+
+
+const shouldShow =
+   history.length >= 6
+
+if(!shouldShow) return
+
+box.classList.remove("hidden")
+
+let trendPower = Math.abs(score)
+ let trendBias = score>=0 ? valid.at(-1) : (valid.at(-1)==='PLAYER'?'BANKER':'PLAYER')
+ const lastDNA = dna.slice(-5)
+ const winMomentum = lastDNA.filter(x=>x==='WIN').length
+ const lossMomentum = lastDNA.filter(x=>x==='LOSS').length
+
+ let final = trendBias
+ if(nnPrediction && nnConfidence > 0.7) {
+   final = nnPrediction;
+ }
+
+ box.classList.remove("hidden")
+ main.innerText = final==='PLAYER'?'P':'B'
+ /* ใช้สำหรับ ASSIST HISTORY */
+lastAssistBet = final
+ main.classList.remove("text-blue-600","text-red-600","drop-shadow-[0_0_20px_#3b82f6]","drop-shadow-[0_0_20px_#ef4444]")
+
+ if(final==='PLAYER'){
+  main.classList.add("text-blue-600","drop-shadow-[0_0_20px_#3b82f6]")
+ }else{
+  main.classList.add("text-red-600","drop-shadow-[0_0_20px_#ef4444]")
+ }
+
+ const nnAcc = accuracyTracker.neural.total ? (accuracyTracker.neural.correct/accuracyTracker.neural.total*100).toFixed(0) : 0;
+ const patAcc = accuracyTracker.pattern.total ? (accuracyTracker.pattern.correct/accuracyTracker.pattern.total*100).toFixed(0) : 0;
+
+ detail.innerHTML = `
+ <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-2xl shadow-xl border border-blue-200">
+  <div class="text-[11px] text-blue-500 font-bold">Neural Confidence</div>
+<div
+ id="nnConfidenceValue"
+ class="text-xl font-black text-blue-600">
+
+${nnPrediction
+ ? ((nnConfidence || 0)*100).toFixed(1)
+ : '0.0'}%
+
+</div>
+ </div>
+ <div class="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-2xl shadow-xl border border-green-200">
+  <div class="text-[11px] text-green-500 font-bold">Shoe Accuracy</div>
+  <div class="text-xl font-black text-green-600">
+   NN: ${nnAcc}% | PAT: ${patAcc}%
+  </div>
+ </div>
+ <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-2xl shadow-xl border border-purple-200">
+  <div class="text-[11px] text-purple-500 font-bold">Decision Mode</div>
+  <div class="text-xl font-black text-purple-600">
+ ${dominantEngine}
+</div>
+
+<div class="text-[10px] text-slate-500 mt-1">
+ ${nnPrediction ? 'SELF-LEARNING' : 'PATTERN'}
+</div>
+ </div>
+ <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-2xl shadow-xl border border-orange-200">
+  <div class="text-[11px] text-orange-500 font-bold">Volatility Index</div>
+  <div class="text-xl font-black text-orange-600">
+   ${trendPower}
+  </div>
+ </div>
+ `
+}
+
+function updateAI(e,s,c){
+
+ const aiResult =
+ document.getElementById('aiResult')
+
+ const aiStatus =
+ document.getElementById('aiStatus')
+
+ const valid = history.filter(x=>x!=='TIE')
+
+ const engineReasons = []
+
+ let pScore = 0
+ let bScore = 0
+
+ if(valid.length < 3){
+  resetAI()
+  return
+ }
+ let score = 0
+ ;[e,s,c].forEach(r=>{ if(r.length) score += r.at(-1)==='RED' ? 1 : -1 })
+
+ const eyeSignal = e.length ? e.at(-1) : null
+const smallSignal = s.length ? s.at(-1) : null
+const cockSignal = c.length ? c.at(-1) : null
+
+if(eyeSignal === 'RED'){
+   engineReasons.push('BigEye → ตาม')
+   if(valid.at(-1)==='PLAYER') pScore += 8
+   else bScore += 8
+}else if(eyeSignal){
+   engineReasons.push('BigEye → สวน')
+   if(valid.at(-1)==='PLAYER') bScore += 8
+   else pScore += 8
+}
+
+if(smallSignal === 'RED'){
+   engineReasons.push('SmallRoad → ตาม')
+   if(valid.at(-1)==='PLAYER') pScore += 6
+   else bScore += 6
+}else if(smallSignal){
+   engineReasons.push('SmallRoad → สวน')
+   if(valid.at(-1)==='PLAYER') bScore += 6
+   else pScore += 6
+}
+
+if(cockSignal === 'RED'){
+   engineReasons.push('Cockroach → ตาม')
+   if(valid.at(-1)==='PLAYER') pScore += 4
+   else bScore += 4
+}else if(cockSignal){
+   engineReasons.push('Cockroach → สวน')
+   if(valid.at(-1)==='PLAYER') bScore += 4
+   else pScore += 4
+}
+
+
+ const last = valid.at(-1)
+
+ if(shoeState.streak >= 4){
+
+   engineReasons.push(
+     `Dragon Detected x${shoeState.streak}`
+   )
+
+   if(last === 'PLAYER'){
+      pScore += shoeState.streak * 3
+   }else{
+      bScore += shoeState.streak * 3
+   }
+}
+
+if(shoeState.chop >= shoeState.trend){
+
+   engineReasons.push('Chaos Table Detected')
+
+   if(last === 'PLAYER'){
+      bScore += 7
+   }else{
+      pScore += 7
+   }
+}
+
+
+const baseDecision =
+ score>=1
+ ? last
+ : (last==='PLAYER'?'BANKER':'PLAYER')
+ let engineWeights = []
+
+engineWeights.push({
+  name:'BigEye',
+  score: eyeSignal === 'RED' ? 8 : -8
+})
+
+engineWeights.push({
+  name:'SmallRoad',
+  score: smallSignal === 'RED' ? 6 : -6
+})
+
+engineWeights.push({
+  name:'Cockroach',
+  score: cockSignal === 'RED' ? 4 : -4
+})
+
+if(shoeState.streak >= 4){
+
+   engineWeights.push({
+      name:'Dragon Trend',
+      score: shoeState.streak * 3
+   })
+
+}
+
+if(shoeState.chop >= shoeState.trend){
+
+   engineWeights.push({
+      name:'Chaos Reverse',
+      score: 7
+   })
+
+}
+
+/* =========================
+   SHORT MEMORY
+========================= */
+
+const shortPatternKey =
+  valid.slice(-5).join('')
+
+/* =========================
+   DEEP MEMORY
+========================= */
+
+const deepPatternKey =
+  valid.slice(-10).join('')
+
+ const followRate =
+ metaStats.followWin /
+ Math.max(1,
+ metaStats.followWin + metaStats.followLose)
+
+const reverseRate =
+ metaStats.reverseWin /
+ Math.max(1,
+ metaStats.reverseWin + metaStats.reverseLose)
+
+engineReasons.push(
+ `META Follow:${(followRate*100).toFixed(0)}% Reverse:${(reverseRate*100).toFixed(0)}%`
+)
+
+if(followRate > reverseRate){
+
+   if(last === 'PLAYER'){
+      pScore += 6
+   }else{
+      bScore += 6
+   }
+
+}else{
+
+   if(last === 'PLAYER'){
+      bScore += 6
+   }else{
+      pScore += 6
+   }
+}
+
+
+/* =====================================
+   SHORT MEMORY ENGINE
+===================================== */
+let pMem = 0
+let bMem = 0
+
+if(patternMemory[shortPatternKey]){
+
+   pMem =
+     patternMemory[shortPatternKey].PLAYER || 0
+
+   bMem =
+     patternMemory[shortPatternKey].BANKER || 0
+
+   engineReasons.push(
+     `SHORT ${shortPatternKey} → P:${pMem} B:${bMem}`
+   )
+
+   pScore += pMem * 2
+   bScore += bMem * 2
+}
+
+engineWeights.push({
+   name:'Short Memory',
+   score:(pMem+bMem)*2
+})
+
+/* =====================================
+   DEEP MEMORY ENGINE
+===================================== */
+let pDeep = 0
+let bDeep = 0
+if(patternMemory[deepPatternKey]){
+
+   pDeep  =
+     patternMemory[deepPatternKey].PLAYER || 0
+
+   bDeep  =
+     patternMemory[deepPatternKey].BANKER || 0
+
+   engineReasons.push(
+     `DEEP ${deepPatternKey} → P:${pDeep} B:${bDeep}`
+   )
+
+   /* deep memory ให้น้ำหนักแรงกว่า */
+
+   pScore += pDeep * 4
+   bScore += bDeep * 4
+}
+ engineWeights.push({
+   name:'Deep Memory',
+   score:(pDeep+bDeep)*4
+})
+
+/* =====================================
+   NEURAL NETWORK ENGINE
+===================================== */
+
+if(nnPrediction){
+
+   const nnPower =
+      nnConfidence * 18
+
+   engineWeights.push({
+      name:'Neural Network',
+      score: nnPower
+   })
+
+   /* HIGH CONFIDENCE */
+
+   if(nnConfidence >= 0.75){
+
+      engineReasons.push(
+        `NN STRONG ${(nnConfidence*100).toFixed(0)}%`
+      )
+
+      if(nnPrediction === 'PLAYER'){
+         pScore += nnPower
+      }else{
+         bScore += nnPower
+      }
+
+   }
+
+   /* MID CONFIDENCE */
+
+   else if(nnConfidence >= 0.60){
+
+      engineReasons.push(
+        `NN MID ${(nnConfidence*100).toFixed(0)}%`
+      )
+
+      if(nnPrediction === 'PLAYER'){
+         pScore += nnPower * 0.6
+      }else{
+         bScore += nnPower * 0.6
+      }
+   }
+
+   /* LOW CONFIDENCE */
+
+   else{
+
+      engineReasons.push(
+        `NN WEAK ${(nnConfidence*100).toFixed(0)}%`
+      )
+
+   }
+}
+
+let finalDecision = pScore >= bScore
+ ? 'PLAYER'
+ : 'BANKER'
+
+ let modeText = ''
+ const strong = Math.abs(score) >= 2
+ const lossStreak = dna.length >= 3 && dna.slice(-3).every(x=>x==='LOSS')
+
+ const nnAcc = accuracyTracker.neural.total ? (accuracyTracker.neural.correct/accuracyTracker.neural.total) : 0;
+ const patAcc = accuracyTracker.pattern.total ? (accuracyTracker.pattern.correct/accuracyTracker.pattern.total) : 0;
+
+if(nnPrediction && (nnConfidence > 0.8 || nnAcc > patAcc)) {
+
+    modeText =
+      ` Neural Network Prediction (${(nnConfidence*100).toFixed(0)}%)`;
+
+} else if(globalLossPct >= 51){
+
+   modeText =
+    `🔥 LOSS ${globalLossPct}% → เล่นสวน 1.6X`;
+
+} else if(globalWinPct >= 51){
+
+   modeText =
+    `🔥 WIN ${globalWinPct}% → เล่นตรง 1.6X`;
+
+} else {
+
+   modeText =
+    strong
+      ? 'STRONG TREND DETECTED'
+      : 'PATTERN BREAK';
+}
+/* ===== CONSENSUS FINAL ===== */
+
+finalDecision =
+  pScore >= bScore
+   ? 'PLAYER'
+   : 'BANKER'
+
+/* ===== STABILITY LOCK ===== */
+
+if(finalDecision === lastPrediction){
+
+   stableCounter++
+
+}else{
+
+   stableCounter = 0
+
+}
+
+lastPrediction = finalDecision
+
+if(stableCounter >= 2){
+
+   engineReasons.push(
+    `Stability Lock x${stableCounter}`
+   )
+
+   if(finalDecision === 'PLAYER'){
+
+      pScore += 5
+
+   }else{
+
+      bScore += 5
+
+   }
+}
+
+/* ===== RECALCULATE AFTER LOCK ===== */
+
+finalDecision =
+  pScore >= bScore
+   ? 'PLAYER'
+   : 'BANKER'
+
+/* =====================================
+   DNA MASTER OVERRIDE
+===================================== */
+
+const lastSide = valid.at(-1)
+
+const dnaTotal = dna.length
+
+const dnaLossRate =
+ dnaTotal
+ ? dna.filter(x=>x==='LOSS').length / dnaTotal
+ : 0
+
+const dnaWinRate =
+ dnaTotal
+ ? dna.filter(x=>x==='WIN').length / dnaTotal
+ : 0
+
+/* ===== LOSS MODE ===== */
+
+if(dnaLossRate >= 0.55 && dna.length >= 12){
+
+   engineReasons.push(
+     `DNA LOSS MODE ${(dnaLossRate*100).toFixed(0)}%`
+   )
+
+   /* โต๊ะสลับหนัก */
+
+   if(shoeState.chop >= shoeState.trend){
+
+      finalDecision =
+        lastSide === 'PLAYER'
+        ? 'BANKER'
+        : 'PLAYER'
+
+      engineReasons.push(
+        'DNA Override → CHAOS REVERSE'
+      )
+
+   }
+
+   /* มังกร */
+
+   else if(shoeState.streak >= 4){
+
+      finalDecision = lastSide
+
+      engineReasons.push(
+        'DNA Override → FOLLOW DRAGON'
+      )
+
+   }
+
+   /* ปกติ LOSS สูง */
+
+   else{
+
+      finalDecision =
+        lastSide === 'PLAYER'
+        ? 'BANKER'
+        : 'PLAYER'
+
+      engineReasons.push(
+        'DNA Override → NORMAL REVERSE'
+      )
+   }
+}
+
+/* ===== WIN MODE ===== */
+
+else if(dnaWinRate >= 0.56 && dna.length >= 12){
+
+   engineReasons.push(
+     `DNA WIN MODE ${(dnaWinRate*100).toFixed(0)}%`
+   )
+
+   /* โต๊ะมังกร */
+
+   if(shoeState.streak >= 3){
+
+      finalDecision = lastSide
+
+      engineReasons.push(
+        'DNA Win → FOLLOW TREND'
+      )
+
+   }
+
+   /* โต๊ะสลับ */
+
+   else if(shoeState.chop > shoeState.trend){
+
+      finalDecision =
+        lastSide === 'PLAYER'
+        ? 'BANKER'
+        : 'PLAYER'
+
+      engineReasons.push(
+        'DNA Win → CHAOS REVERSE'
+      )
+
+   }
+}
+
+/* ===== ENGINE RANK ===== */
+
+engineWeights.sort((a,b)=>b.score-a.score)
+
+dominantEngine =
+ engineWeights.length
+ ? engineWeights[0].name
+ : '-'
+
+engineReasons.push(
+  `DOMINANT ENGINE → ${dominantEngine}`
+)
+
+engineReasons.push(
+  `TOTAL SCORE → P:${pScore.toFixed(1)} | B:${bScore.toFixed(1)}`
+)
+
+/* ===== UI COLOR ===== */
+
+aiResult.classList.remove(
+ 'text-blue-600',
+ 'text-red-600',
+ 'drop-shadow-[0_0_15px_#3b82f6]',
+ 'drop-shadow-[0_0_15px_#ef4444]'
+)
+
+if(finalDecision==='PLAYER'){
+
+  aiResult.classList.add(
+   'text-blue-600',
+   'drop-shadow-[0_0_15px_#3b82f6]'
+  )
+
+}else{
+
+  aiResult.classList.add(
+   'text-red-600',
+   'drop-shadow-[0_0_15px_#ef4444]'
+  )
+}
+
+lastBet =
+ finalDecision === 'PLAYER'
+ ? 'P'
+ : 'B'
+
+betHistory.push(lastBet)
+
+if(betHistory.length > 500){
+
+  betHistory.shift()
+
+}
+
+aiResult.innerText = lastBet
+
+/* ===== STATUS ===== */
+
+if(lossStreak && strong){
+
+   aiStatus.innerText =
+    '⚠️ CAUTION: LOSS STREAK DETECTED'
+
+   aiResult.classList.add('animate-hyper')
+
+}else{
+
+   aiStatus.innerText = modeText
+
+   aiResult.classList.remove('animate-hyper')
+}
+
+/* ===== FINAL REASON ===== */
+
+engineReasons.push(
+
+  finalDecision === 'PLAYER'
+
+   ? `FINAL → <span class="final-player">PLAYER</span>`
+
+   : `FINAL → <span class="final-banker">BANKER</span>`
+
+)
+
+document.getElementById('aiReason').innerHTML =
+ engineReasons.map(x=>`• ${x}`).join('<br>')
+
+updateUltraAssist(valid, score)
+}
+</script>
+</body>
+</html>
