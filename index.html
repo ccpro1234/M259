@@ -287,6 +287,40 @@ td{
  linear-gradient(135deg,#ef4444,#f87171);
 }
 
+/* ===== วางตรงนี้ ===== */
+
+@keyframes winratePulse{
+
+  0%,100%{
+    transform:scale(1);
+    opacity:1;
+
+    text-shadow:
+      0 0 6px rgba(16,185,129,.25),
+      0 0 12px rgba(16,185,129,.18);
+  }
+
+  50%{
+    transform:scale(1.20);
+    opacity:.92;
+
+    text-shadow:
+      0 0 12px rgba(16,185,129,.45),
+      0 0 22px rgba(16,185,129,.30);
+  }
+}
+#assistWinrate{
+
+  display:inline-block;
+
+  animation:
+    winratePulse 2.2s ease-in-out infinite;
+
+  transform-origin:center;
+}
+
+/* ===== ก่อน assist-box::after ===== */
+
 .assist-box::after{
  content:'';
  position:absolute;
